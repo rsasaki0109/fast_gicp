@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.0)
-project(fast_gicp)
+project(fast_gicp_ros2)
 
 add_definitions(-msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2)
 set(CMAKE_C_FLAGS "-msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2")
@@ -7,10 +7,13 @@ set(CMAKE_CXX_FLAGS "-msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2")
 
 set(CMAKE_BUILD_TYPE "Release")
 
-find_package(catkin REQUIRED)
+#find_package(catkin REQUIRED)
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
 
 find_package(PCL REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(Boost REQUIRED)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -28,16 +31,19 @@ endif()
 ###################################
 ## catkin specific configuration ##
 ###################################
-catkin_package(
-  INCLUDE_DIRS include thirdparty/Sophus
-  LIBRARIES fast_gicp
+#catkin_package(
+#  INCLUDE_DIRS include thirdparty/Sophus
+#  LIBRARIES fast_gicp
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
-)
+#)
 
 ###########
 ## Build ##
 ###########
+include_directories(
+  include
+)
 
 add_library(fast_gicp
   src/fast_gicp/gicp/fast_gicp.cpp
@@ -58,20 +64,15 @@ target_include_directories(fast_gicp PUBLIC
 )
 
 add_executable(gicp_align src/align.cpp)
-add_dependencies(gicp_align ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#add_dependencies(gicp_align ${${PROJECT_NAME}_EXPORTED_TARGETS} 
+#${catkin_EXPORTED_TARGETS}
+#)
 target_link_libraries(gicp_align
-  ${catkin_LIBRARIES}
+  #${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
   fast_gicp
 )
 
-add_executable(gicp_kitti src/kitti.cpp)
-add_dependencies(gicp_kitti ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(gicp_kitti
-  ${catkin_LIBRARIES}
-  ${PCL_LIBRARIES}
-  fast_gicp
-)
 
 if(CUDA_FOUND)
   set(CUDA_NVCC_FLAGS "--expt-relaxed-constexpr")
@@ -99,3 +100,31 @@ if(CUDA_FOUND)
   )
   add_dependencies(fast_gicp fast_vgicp_cuda)
 endif()
+
+
+############
+## INSTAL ##
+############
+
+install(TARGETS 
+  gicp_align
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+  TARGETS
+    gicp_align
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+
+install(
+  DIRECTORY "include/"
+  DESTINATION include
+)
+
+ament_export_dependencies(rclcpp)
+ament_export_include_directories(include)
+
+ament_package()
