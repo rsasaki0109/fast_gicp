@@ -1,5 +1,5 @@
 # fast_gicp
-![foxy](https://github.com/rsasaki0109/fast_gicpros2/workflows/foxy/badge.svg)  
+![foxy](https://github.com/rsasaki0109/fast_gicp_ros2/workflows/foxy/badge.svg)  
 This package is a collection of GICP-based fast point cloud registration algorithms. It constains a multi-threaded GICP as well as multi-thread and GPU implementations of our voxelized GICP (VGICP) algorithm. All the implemented algorithms have the PCL registration interface so that they can be used as an inplace replacement for GICP in PCL.
 
 - FastGICP: multi-threaded GICP algorithm (**\~40FPS**)
@@ -66,6 +66,15 @@ single:47.8433[msec] 100times:3235.27[msec] 100times_reuse:1582.99[msec]
 ```
 
 See [src/align.cpp](https://github.com/SMRT-AIST/fast_gicp/blob/master/src/align.cpp) for the detailed usage.
+
+## Test on KITTI
+
+```bash
+# Perform frame-by-frame registration
+rosrun fast_gicp gicp_kitti /your/kitti/path/sequences/00/velodyne
+```
+
+![kitti00](https://user-images.githubusercontent.com/31344317/86207074-b98ac280-bba8-11ea-9687-e65f03aaf25b.png)
 
 ## Related packages
 - [ndt_omp](https://github.com/koide3/ndt_omp)
